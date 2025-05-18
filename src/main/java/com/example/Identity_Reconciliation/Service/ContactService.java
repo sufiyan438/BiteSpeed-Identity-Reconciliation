@@ -11,15 +11,18 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import com.example.Identity_Reconciliation.DTOs.PostContactResponse;
 import com.example.Identity_Reconciliation.Model.Contact;
 import com.example.Identity_Reconciliation.Repository.ContactRepository;
 
+@Service
 public class ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
-    public Map<String, Object> identifyContact(String email, String phoneNumber) {
+    public PostContactResponse identifyContact(String email, String phoneNumber) {
         List<Contact> matchingContacts = contactRepository.findByEmailOrPhoneNumber(email, phoneNumber);
 
         if (matchingContacts.isEmpty()) {
@@ -29,16 +32,14 @@ public class ContactService {
             newContact.setLinkPrecedence(Contact.LinkPrecedence.PRIMARY);
             contactRepository.save(newContact);
 
-            return buildResponse(newContact, Collections.emptyList());
+            return new PostContactResponse(buildResponse(newContact, Collections.emptyList()));
         }
 
-        // Consolidate contacts
         Contact primaryContact = findPrimaryContact(matchingContacts);
         List<Contact> secondaryContacts = matchingContacts.stream()
                 .filter(contact -> !contact.equals(primaryContact))
                 .collect(Collectors.toList());
 
-        // Add new secondary contact if needed
         if (matchingContacts.stream().noneMatch(c -> Objects.equals(c.getEmail(), email) && Objects.equals(c.getPhoneNumber(), phoneNumber))) {
             Contact newSecondaryContact = new Contact();
             newSecondaryContact.setEmail(email);
@@ -49,7 +50,7 @@ public class ContactService {
             secondaryContacts.add(newSecondaryContact);
         }
 
-        return buildResponse(primaryContact, secondaryContacts);
+        return new PostContactResponse(buildResponse(primaryContact, secondaryContacts));
     }
 
     private Contact findPrimaryContact(List<Contact> contacts) {

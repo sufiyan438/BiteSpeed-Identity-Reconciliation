@@ -3,11 +3,11 @@ package com.example.Identity_Reconciliation.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.Identity_Reconciliation.Service.ContactService;
+import com.example.Identity_Reconciliation.DTOs.PostContactResponse;
+import com.example.Identity_Reconciliation.DTOs.PostContactRequest;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +19,10 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/identify")
-    public ResponseEntity<Map<String, Object>> identify(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String phoneNumber = request.get("phoneNumber");
-        Map<String, Object> response = contactService.identifyContact(email, phoneNumber);
+    public ResponseEntity<PostContactResponse> identify(@RequestBody PostContactRequest request) {
+        String email = request.getEmail();
+        String phoneNumber = request.getPhoneNumber();
+        PostContactResponse response = contactService.identifyContact(email, phoneNumber);
         return ResponseEntity.ok(response);
     }
 
