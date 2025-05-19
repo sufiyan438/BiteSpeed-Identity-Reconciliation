@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PostContactRequest {
+public class IdentifyRequestDTO {
     private String email;
     private String phoneNumber;
 }
